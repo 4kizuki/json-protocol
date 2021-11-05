@@ -1,0 +1,32 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "project": "./tsconfig.json",
+    "useJSXTextNode": true
+  },
+  "plugins": ["@typescript-eslint", "prettier"],
+  "extends": ["plugin:@typescript-eslint/recommended", "plugin:prettier/recommended", "prettier"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "rules": {
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "prettier/prettier": "error",
+    "max-len": [
+      "error",
+      {
+        "code": 120
+      }
+    ],
+    "prefer-promise-reject-errors": ["off"],
+    "no-return-assign": ["off"]
+  }
+}

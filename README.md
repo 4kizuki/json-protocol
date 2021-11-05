@@ -1,1 +1,1 @@
-# json-protocol
+# well-typed-json
