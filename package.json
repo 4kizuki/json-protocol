@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "generate": "ts-node src/generate.ts",
+    "build": "rimraf ./dist && ts-node src/parse.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
