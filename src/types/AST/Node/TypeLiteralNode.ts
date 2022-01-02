@@ -154,6 +154,14 @@ export class IntegerTypeNode extends TypeLiteralNode {
   public getDependingTypes(): Set<IdentifierString> {
     return new Set();
   }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return signTypeNode(ts.factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword), symbolName, {
+      type: 'integer',
+      min: this.min && this.min.value,
+      max: this.max && this.max.value,
+    });
+  }
 }
 
 export class FloatTypeNode extends TypeLiteralNode {
