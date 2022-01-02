@@ -5,7 +5,7 @@
   "scripts": {
     "generate": "ts-node src/generate.ts",
     "build": "rimraf ./dist && ts-node src/parse.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -14,16 +14,19 @@
   "author": "Shōsei Yū <4kizuki@h4dz.io>",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^27.4.0",
     "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "^5.3.0",
     "@typescript-eslint/parser": "^5.3.0",
     "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^27.4.5",
     "nodemon": "^2.0.14",
     "peggy": "^1.2.0",
     "prettier": "^2.4.1",
     "rimraf": "^3.0.2",
+    "ts-jest": "^27.1.2",
     "ts-node": "^10.4.0",
     "ts-pegjs": "^1.2.1",
     "typescript": "^4.4.4"

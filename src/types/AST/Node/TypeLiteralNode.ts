@@ -20,6 +20,7 @@ import {
 } from '../../ParsedAST';
 import { BooleanLiteral, FloatLiteral, SignedIntegerLiteral, StringLiteral, UnsignedIntegerLiteral } from '../Literal';
 import { IdentifierNode, IdentifierString, Node, PropertyNameNode } from './index';
+import * as ts from 'typescript';
 
 export function typeNodeFactory(parsed: ParsedTypeNode): TypeLiteralNode | IdentifierNode {
   switch (parsed.type) {
@@ -109,6 +110,44 @@ export class StringTypeNode extends TypeLiteralNode {
 
   public getDependingTypes(): Set<IdentifierString> {
     return new Set();
+  }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    if (this.min === null && this.max === null) return ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
+
+    const signatures: ts.TypeElement[] = [
+      ts.factory.createPropertySignature(
+        undefined,
+        ts.factory.createIdentifier('type'),
+        undefined,
+        ts.factory.createLiteralTypeNode(ts.factory.createStringLiteral('string')),
+      ),
+    ];
+    (['min', 'max'] as const).forEach(propName => {
+      const prop = this[propName];
+      if (prop === null) return;
+
+      signatures.push(
+        ts.factory.createPropertySignature(
+          undefined,
+          ts.factory.createIdentifier(propName),
+          undefined,
+          ts.factory.createLiteralTypeNode(ts.factory.createNumericLiteral(prop.value)),
+        ),
+      );
+    });
+
+    return ts.factory.createIntersectionTypeNode([
+      ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+      ts.factory.createTypeLiteralNode([
+        ts.factory.createPropertySignature(
+          undefined,
+          ts.factory.createComputedPropertyName(ts.factory.createIdentifier(symbolName)),
+          undefined,
+          ts.factory.createTypeLiteralNode(signatures),
+        ),
+      ]),
+    ]);
   }
 }
 
