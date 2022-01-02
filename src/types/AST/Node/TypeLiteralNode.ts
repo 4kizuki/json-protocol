@@ -315,8 +315,8 @@ export class DictionaryTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return ts.factory.createTypeLiteralNode([
-      ...this.properties.map(property =>
+    return ts.factory.createTypeLiteralNode(
+      this.properties.map(property =>
         ts.factory.createPropertySignature(
           undefined,
           property.identifier.name,
@@ -326,10 +326,7 @@ export class DictionaryTypeNode extends TypeLiteralNode {
             : ts.factory.createTypeReferenceNode(property.type.name),
         ),
       ),
-      createSignProperty(symbolName, {
-        type: 'dictionary',
-      }),
-    ]);
+    );
   }
 }
 
@@ -357,23 +354,17 @@ export class NamedTupleTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return signTypeNode(
-      ts.factory.createTupleTypeNode(
-        this.elements.map(element =>
-          ts.factory.createNamedTupleMember(
-            undefined,
-            ts.factory.createIdentifier(element.identifier.name),
-            element.optional ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
-            element.type instanceof TypeLiteralNode
-              ? element.type.exportTypeDefinition(symbolName)
-              : ts.factory.createTypeReferenceNode(element.type.name),
-          ),
+    return ts.factory.createTupleTypeNode(
+      this.elements.map(element =>
+        ts.factory.createNamedTupleMember(
+          undefined,
+          ts.factory.createIdentifier(element.identifier.name),
+          element.optional ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
+          element.type instanceof TypeLiteralNode
+            ? element.type.exportTypeDefinition(symbolName)
+            : ts.factory.createTypeReferenceNode(element.type.name),
         ),
       ),
-      symbolName,
-      {
-        type: 'named-tuple',
-      },
     );
   }
 }

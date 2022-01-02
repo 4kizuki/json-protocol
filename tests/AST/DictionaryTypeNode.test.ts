@@ -35,7 +35,7 @@ describe('DictionaryTypeNode :: ExportTypeDefinition', (): void => {
         },
         location,
       }).exportTypeDefinition(symName),
-      `{ some?: string & { [${symName}]: {type: "string", max: 3} }; min3: string & {[${symName}]: {type: "string", min: 3} }; [${symName}]: { type: "dictionary" } }`,
+      `{ some?: string & { [${symName}]: {type: "string", max: 3} }; min3: string & {[${symName}]: {type: "string", min: 3} } }`,
     );
   });
 });
