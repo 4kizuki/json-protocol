@@ -1,11 +1,8 @@
-import { DateStringTypeNode, StringTypeNode } from '../../src/types/AST/Node/TypeLiteralNode';
+import { StringTypeNode } from '../../src/types/AST/Node/TypeLiteralNode';
 import { assertType } from '../util/assertType';
+import { createDummyLocation } from '../util/createDummyLocation';
 
-const location = {
-  source: null,
-  start: { offset: 1, line: 3, column: 6 },
-  end: { offset: 1, line: 3, column: 12 },
-};
+const location = createDummyLocation();
 
 describe('StringTypeNode :: ExportTypeDefinition', (): void => {
   test('None', (): void => {
@@ -66,21 +63,6 @@ describe('StringTypeNode :: ExportTypeDefinition', (): void => {
         location,
       }).exportTypeDefinition(symName),
       `string & {[${symName}]: { type: "string"; min: 3; max: 4 }}`,
-    );
-  });
-});
-
-describe('DateStringTypeNode :: ExportTypeDefinition', (): void => {
-  test('Default', (): void => {
-    const symName = 'sym';
-
-    assertType(
-      new DateStringTypeNode({
-        type: 'date_string_type',
-        payload: null,
-        location,
-      }).exportTypeDefinition(symName),
-      `string & {[${symName}]: { type: "date-string" }`,
     );
   });
 });
