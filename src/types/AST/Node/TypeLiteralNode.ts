@@ -159,6 +159,29 @@ export class DateStringTypeNode extends TypeLiteralNode {
   public getDependingTypes(): Set<IdentifierString> {
     return new Set();
   }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    const signatures: ts.TypeElement[] = [
+      ts.factory.createPropertySignature(
+        undefined,
+        ts.factory.createIdentifier('type'),
+        undefined,
+        ts.factory.createLiteralTypeNode(ts.factory.createStringLiteral('date-string')),
+      ),
+    ];
+
+    return ts.factory.createIntersectionTypeNode([
+      ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+      ts.factory.createTypeLiteralNode([
+        ts.factory.createPropertySignature(
+          undefined,
+          ts.factory.createComputedPropertyName(ts.factory.createIdentifier(symbolName)),
+          undefined,
+          ts.factory.createTypeLiteralNode(signatures),
+        ),
+      ]),
+    ]);
+  }
 }
 
 export class IntegerTypeNode extends TypeLiteralNode {
