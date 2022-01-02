@@ -14,7 +14,7 @@ describe('DateStringTypeNode :: ExportTypeDefinition', (): void => {
         payload: null,
         location,
       }).exportTypeDefinition(symName),
-      `string & { [${symName}]: { type: "date-string" } }`,
+      `Date`,
     );
   });
 });

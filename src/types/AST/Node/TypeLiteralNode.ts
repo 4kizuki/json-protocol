@@ -21,7 +21,7 @@ import {
 import { BooleanLiteral, FloatLiteral, SignedIntegerLiteral, StringLiteral, UnsignedIntegerLiteral } from '../Literal';
 import { IdentifierNode, IdentifierString, Node, PropertyNameNode } from './index';
 import * as ts from 'typescript';
-import { createSignProperty, signTypeNode } from '../../../util/signTypeNode';
+import { signTypeNode } from '../../../util/signTypeNode';
 
 export function typeNodeFactory(parsed: ParsedTypeNode): TypeLiteralNode | IdentifierNode {
   switch (parsed.type) {
@@ -137,9 +137,7 @@ export class DateStringTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return signTypeNode(ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), symbolName, {
-      type: 'date-string',
-    });
+    return ts.factory.createTypeReferenceNode('Date');
   }
 }
 
