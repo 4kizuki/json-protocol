@@ -178,6 +178,14 @@ export class FloatTypeNode extends TypeLiteralNode {
   public getDependingTypes(): Set<IdentifierString> {
     return new Set();
   }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return signTypeNode(ts.factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword), symbolName, {
+      type: 'float',
+      left: this.left && `${this.left[1]}| ${this.left[0].value}`,
+      right: this.right && `${this.right[1]}| ${this.right[0].value}`,
+    });
+  }
 }
 
 export class BooleanTypeNode extends TypeLiteralNode {
