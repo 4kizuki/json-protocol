@@ -228,6 +228,10 @@ export class IntegerLiteralTypeNode extends TypeLiteralNode {
   public getDependingTypes(): Set<IdentifierString> {
     return new Set();
   }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return ts.factory.createLiteralTypeNode(ts.factory.createNumericLiteral(`${this.value.value}`));
+  }
 }
 
 export class FloatLiteralTypeNode extends TypeLiteralNode {
@@ -241,6 +245,10 @@ export class FloatLiteralTypeNode extends TypeLiteralNode {
 
   public getDependingTypes(): Set<IdentifierString> {
     return new Set();
+  }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return ts.factory.createLiteralTypeNode(ts.factory.createNumericLiteral(`${this.value.value}`));
   }
 }
 
@@ -256,6 +264,10 @@ export class BooleanLiteralTypeNode extends TypeLiteralNode {
   public getDependingTypes(): Set<IdentifierString> {
     return new Set();
   }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return ts.factory.createLiteralTypeNode(this.value.value ? ts.factory.createTrue() : ts.factory.createFalse());
+  }
 }
 
 export class StringLiteralTypeNode extends TypeLiteralNode {
@@ -269,6 +281,10 @@ export class StringLiteralTypeNode extends TypeLiteralNode {
 
   public getDependingTypes(): Set<IdentifierString> {
     return new Set();
+  }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return ts.factory.createLiteralTypeNode(ts.factory.createStringLiteral(`${this.value.value}`));
   }
 }
 
