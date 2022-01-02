@@ -21,7 +21,7 @@ import {
 import { BooleanLiteral, FloatLiteral, SignedIntegerLiteral, StringLiteral, UnsignedIntegerLiteral } from '../Literal';
 import { IdentifierNode, IdentifierString, Node, PropertyNameNode } from './index';
 import * as ts from 'typescript';
-import { signTypeNode } from '../../../util/signTypeNode';
+import { createSignProperty, signTypeNode } from '../../../util/signTypeNode';
 
 export function typeNodeFactory(parsed: ParsedTypeNode): TypeLiteralNode | IdentifierNode {
   switch (parsed.type) {
@@ -69,6 +69,8 @@ export abstract class TypeLiteralNode extends Node {
   private readonly [typeLiteralSign] = typeLiteralSign;
 
   public abstract getDependingTypes(): Set<IdentifierString>;
+
+  public abstract exportTypeDefinition(symbolName: string): ts.TypeNode;
 }
 
 // helper function
@@ -83,7 +85,7 @@ function getDependentIdentifiersFromUnion(type: TypeLiteralNode | IdentifierNode
 }
 
 // helper class
-class TypeNodeOfTypes extends TypeLiteralNode {
+abstract class TypeNodeOfTypes extends TypeLiteralNode {
   public readonly types: (TypeLiteralNode | IdentifierNode)[];
 
   protected constructor(types: ParsedTypeNode[], location: Location) {
@@ -310,6 +312,24 @@ export class DictionaryTypeNode extends TypeLiteralNode {
     this.properties.forEach(({ type }) => getDependentIdentifiersFromUnion(type).forEach(n => ret.add(n)));
     return ret;
   }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return ts.factory.createTypeLiteralNode([
+      ...this.properties.map(property =>
+        ts.factory.createPropertySignature(
+          undefined,
+          property.identifier.name,
+          property.optional ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
+          property.type instanceof TypeLiteralNode
+            ? property.type.exportTypeDefinition(symbolName)
+            : ts.factory.createTypeReferenceNode(property.type.name),
+        ),
+      ),
+      createSignProperty(symbolName, {
+        type: 'dictionary',
+      }),
+    ]);
+  }
 }
 
 export class NamedTupleTypeNode extends TypeLiteralNode {
@@ -334,6 +354,27 @@ export class NamedTupleTypeNode extends TypeLiteralNode {
     this.elements.forEach(({ type }) => getDependentIdentifiersFromUnion(type).forEach(n => ret.add(n)));
     return ret;
   }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return signTypeNode(
+      ts.factory.createTupleTypeNode(
+        this.elements.map(element =>
+          ts.factory.createNamedTupleMember(
+            undefined,
+            ts.factory.createIdentifier(element.identifier.name),
+            element.optional ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
+            element.type instanceof TypeLiteralNode
+              ? element.type.exportTypeDefinition(symbolName)
+              : ts.factory.createTypeReferenceNode(element.type.name),
+          ),
+        ),
+      ),
+      symbolName,
+      {
+        type: 'named-tuple',
+      },
+    );
+  }
 }
 
 export class ArrayTypeNode extends TypeLiteralNode {
@@ -352,11 +393,43 @@ export class ArrayTypeNode extends TypeLiteralNode {
   public getDependingTypes(): Set<IdentifierString> {
     return getDependentIdentifiersFromUnion(this.type);
   }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return signTypeNode(
+      ts.factory.createArrayTypeNode(
+        this.type instanceof TypeLiteralNode
+          ? this.type.exportTypeDefinition(symbolName)
+          : ts.factory.createTypeReferenceNode(this.type.name),
+      ),
+      symbolName,
+      {
+        type: 'array',
+        min: this.min && this.min.value,
+        max: this.max && this.max.value,
+      },
+    );
+  }
 }
 
 export class TupleTypeNode extends TypeNodeOfTypes {
   public constructor({ payload: { types }, location }: ParsedTupleTypeNode) {
     super(types, location);
+  }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return signTypeNode(
+      ts.factory.createTupleTypeNode(
+        this.types.map(type =>
+          type instanceof TypeLiteralNode
+            ? type.exportTypeDefinition(symbolName)
+            : ts.factory.createTypeReferenceNode(type.name),
+        ),
+      ),
+      symbolName,
+      {
+        type: 'tuple',
+      },
+    );
   }
 }
 
@@ -364,10 +437,42 @@ export class IntersectionTypeNode extends TypeNodeOfTypes {
   public constructor({ payload: { types }, location }: ParsedIntersectionTypeNode) {
     super(types, location);
   }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return signTypeNode(
+      ts.factory.createIntersectionTypeNode(
+        this.types.map(type =>
+          type instanceof TypeLiteralNode
+            ? type.exportTypeDefinition(symbolName)
+            : ts.factory.createTypeReferenceNode(type.name),
+        ),
+      ),
+      symbolName,
+      {
+        type: 'intersection',
+      },
+    );
+  }
 }
 
 export class UnionTypeNode extends TypeNodeOfTypes {
   public constructor({ payload: { types }, location }: ParsedUnionTypeNode) {
     super(types, location);
+  }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return signTypeNode(
+      ts.factory.createUnionTypeNode(
+        this.types.map(type =>
+          type instanceof TypeLiteralNode
+            ? type.exportTypeDefinition(symbolName)
+            : ts.factory.createTypeReferenceNode(type.name),
+        ),
+      ),
+      symbolName,
+      {
+        type: 'union',
+      },
+    );
   }
 }

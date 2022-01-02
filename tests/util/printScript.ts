@@ -6,9 +6,13 @@ const printer = ts.createPrinter({
 });
 const source = ts.createSourceFile('index.ts', '', ts.ScriptTarget.Latest, undefined, ts.ScriptKind.TS);
 
+const DEBUG_LOG_SCRIPT = false;
+
 export function printFormattedScript(n: ts.Node): string {
-  return prettier.format(printer.printNode(ts.EmitHint.Unspecified, n, source), {
-    parser: 'babel',
+  const p = printer.printNode(ts.EmitHint.Unspecified, n, source);
+  if (DEBUG_LOG_SCRIPT) console.log(p);
+  return prettier.format(p, {
+    parser: 'babel-ts',
     printWidth: 120,
     trailingComma: 'all',
     tabWidth: 2,
