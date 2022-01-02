@@ -196,6 +196,10 @@ export class BooleanTypeNode extends TypeLiteralNode {
   public getDependingTypes(): Set<IdentifierString> {
     return new Set();
   }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
+  }
 }
 
 export class NullTypeNode extends TypeLiteralNode {
@@ -205,6 +209,10 @@ export class NullTypeNode extends TypeLiteralNode {
 
   public getDependingTypes(): Set<IdentifierString> {
     return new Set();
+  }
+
+  public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return ts.factory.createLiteralTypeNode(ts.factory.createNull());
   }
 }
 
