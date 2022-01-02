@@ -116,9 +116,10 @@ export class StringTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    if (this.min === null && this.max === null) return ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
+    const original = ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
+    if (this.min === null && this.max === null) return original;
 
-    return signTypeNode(ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), symbolName, {
+    return signTypeNode(original, symbolName, {
       type: 'string',
       min: this.min && this.min.value,
       max: this.max && this.max.value,
@@ -395,19 +396,19 @@ export class ArrayTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return signTypeNode(
-      ts.factory.createArrayTypeNode(
-        this.type instanceof TypeLiteralNode
-          ? this.type.exportTypeDefinition(symbolName)
-          : ts.factory.createTypeReferenceNode(this.type.name),
-      ),
-      symbolName,
-      {
-        type: 'array',
-        min: this.min && this.min.value,
-        max: this.max && this.max.value,
-      },
+    const original = ts.factory.createArrayTypeNode(
+      this.type instanceof TypeLiteralNode
+        ? this.type.exportTypeDefinition(symbolName)
+        : ts.factory.createTypeReferenceNode(this.type.name),
     );
+
+    if (this.min === null && this.max === null) return original;
+
+    return signTypeNode(original, symbolName, {
+      type: 'array',
+      min: this.min && this.min.value,
+      max: this.max && this.max.value,
+    });
   }
 }
 
@@ -417,18 +418,12 @@ export class TupleTypeNode extends TypeNodeOfTypes {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return signTypeNode(
-      ts.factory.createTupleTypeNode(
-        this.types.map(type =>
-          type instanceof TypeLiteralNode
-            ? type.exportTypeDefinition(symbolName)
-            : ts.factory.createTypeReferenceNode(type.name),
-        ),
+    return ts.factory.createTupleTypeNode(
+      this.types.map(type =>
+        type instanceof TypeLiteralNode
+          ? type.exportTypeDefinition(symbolName)
+          : ts.factory.createTypeReferenceNode(type.name),
       ),
-      symbolName,
-      {
-        type: 'tuple',
-      },
     );
   }
 }
@@ -439,18 +434,12 @@ export class IntersectionTypeNode extends TypeNodeOfTypes {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return signTypeNode(
-      ts.factory.createIntersectionTypeNode(
-        this.types.map(type =>
-          type instanceof TypeLiteralNode
-            ? type.exportTypeDefinition(symbolName)
-            : ts.factory.createTypeReferenceNode(type.name),
-        ),
+    return ts.factory.createIntersectionTypeNode(
+      this.types.map(type =>
+        type instanceof TypeLiteralNode
+          ? type.exportTypeDefinition(symbolName)
+          : ts.factory.createTypeReferenceNode(type.name),
       ),
-      symbolName,
-      {
-        type: 'intersection',
-      },
     );
   }
 }
@@ -461,18 +450,12 @@ export class UnionTypeNode extends TypeNodeOfTypes {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return signTypeNode(
-      ts.factory.createUnionTypeNode(
-        this.types.map(type =>
-          type instanceof TypeLiteralNode
-            ? type.exportTypeDefinition(symbolName)
-            : ts.factory.createTypeReferenceNode(type.name),
-        ),
+    return ts.factory.createUnionTypeNode(
+      this.types.map(type =>
+        type instanceof TypeLiteralNode
+          ? type.exportTypeDefinition(symbolName)
+          : ts.factory.createTypeReferenceNode(type.name),
       ),
-      symbolName,
-      {
-        type: 'union',
-      },
     );
   }
 }

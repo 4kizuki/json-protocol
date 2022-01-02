@@ -27,7 +27,7 @@ describe('UnionTypeNode :: ExportTypeDefinition', (): void => {
         },
         location,
       }).exportTypeDefinition(symName),
-      `((string & { [${symName}]: {type: "string", max: 3} })|(string & {[${symName}]: {type: "string", min: 3} }))&{ [${symName}]: { type: "union" } }`,
+      `((string & { [${symName}]: {type: "string", max: 3} })|(string & {[${symName}]: {type: "string", min: 3} }))`,
     );
   });
 });

@@ -27,7 +27,7 @@ describe('IntersectionTypeNode :: ExportTypeDefinition', (): void => {
         },
         location,
       }).exportTypeDefinition(symName),
-      `((string & { [${symName}]: {type: "string", max: 3} })&(string & {[${symName}]: {type: "string", min: 3} }))&{ [${symName}]: { type: "intersection" } }`,
+      `((string & { [${symName}]: {type: "string", max: 3} })&(string & {[${symName}]: {type: "string", min: 3} }))`,
     );
   });
 });
