@@ -1,9 +1,9 @@
-import { parse } from '../parser/parser';
 import { promises as fs } from 'fs';
-import { ParsedAST } from './types/ParsedAST';
-import { AST } from './types/AST';
-import { IdentifierString } from './types/AST/Node';
 import { TypedefNode } from './types/AST/Node/TypedefNode';
+import { TypeLiteralNode } from './types/AST/Node/TypeLiteralNode';
+import { printFormattedScript } from './util/printScript';
+import { wrapTypeNodeWithTypeAliasStatement } from './util/wrapTypeNodeWithTypeAliasStatement';
+import { parseSchema } from './parser';
 
 async function main() {
   try {
@@ -11,29 +11,17 @@ async function main() {
     if (typeof fileName !== 'string') throw 'No filename provided';
 
     const schema = await fs.readFile(fileName, 'utf-8');
+    const ast = parseSchema(schema);
 
-    // Parse schema with PEG parser
-    const parsedSchemaAST: ParsedAST = parse(schema);
+    const symName = 'jsonProto';
 
-    // TODO: validate parsedSchemaAST
-
-    // Transform parsed AST into rich AST
-    const a = new AST(parsedSchemaAST);
-
-    // TODO: resolve symbol table (import)
-
-    // Check symbol table (dependency)
-    const requiredTypes: { depending: IdentifierString; dependent: IdentifierString }[] = [];
-    const definedTypes = new Set<IdentifierString>();
-    a.rootNodes.forEach(r => {
-      if (r instanceof TypedefNode) {
-        r.getDependingTypes().forEach(n => requiredTypes.push({ depending: n, dependent: r.identifier.name }));
-        definedTypes.add(r.identifier.name);
-      }
-    });
-    requiredTypes.forEach(({ depending, dependent }) => {
-      if (!definedTypes.has(depending)) {
-        console.error(`Type "${depending}" is depended by type "${dependent}" but is not defined.`);
+    ast.rootNodes.forEach(n => {
+      if (n instanceof TypedefNode) {
+        const { type } = n;
+        if (type instanceof TypeLiteralNode) {
+          const def = type.exportTypeDefinition(symName);
+          console.log(printFormattedScript(wrapTypeNodeWithTypeAliasStatement(n.identifier.name, def)));
+        }
       }
     });
 
