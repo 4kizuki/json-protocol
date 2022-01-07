@@ -71,6 +71,14 @@ export abstract class TypeLiteralNode extends Node {
   public abstract getDependingTypes(): Set<IdentifierString>;
 
   public abstract exportTypeDefinition(symbolName: string): ts.TypeNode;
+
+  public abstract exportBaseTypeDefinition(): ts.TypeNode;
+
+  public abstract exportJsonTypeDefinition(): ts.TypeNode;
+
+  // public abstract exportValidationLambda(symbolName: string): string;
+  // public abstract exportToJSONLambda(): string;
+  // public abstract exportFromJSONLambda(): string;
 }
 
 // helper function
@@ -116,7 +124,7 @@ export class StringTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    const original = ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
+    const original = this.exportBaseTypeDefinition();
     if (this.min === null && this.max === null) return original;
 
     return signTypeNode(original, symbolName, {
@@ -124,6 +132,24 @@ export class StringTypeNode extends TypeLiteralNode {
       min: this.min && this.min.value,
       max: this.max && this.max.value,
     });
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
+    return ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
+  }
+
+  public exportValidationLambda(symbolName: string): string {
+    // language=typescript
+    return `(base: ${this.exportBaseTypeDefinition()}): Result<${this.exportTypeDefinition(
+      symbolName,
+    )}, ParseError> => {
+      ${this.min !== null ? `if (base.length < ${this.min.value}) throw new ParseError('');` : ''}
+      ${this.max !== null ? `if (base.length > ${this.max.value}) throw new ParseError('');` : ''}
+    `;
   }
 }
 
@@ -137,7 +163,15 @@ export class DateStringTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
     return ts.factory.createTypeReferenceNode('Date');
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
   }
 }
 
@@ -157,11 +191,19 @@ export class IntegerTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return signTypeNode(ts.factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword), symbolName, {
+    return signTypeNode(this.exportBaseTypeDefinition(), symbolName, {
       type: 'integer',
       min: this.min && this.min.value,
       max: this.max && this.max.value,
     });
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
+    return ts.factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword);
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
   }
 }
 
@@ -181,11 +223,19 @@ export class FloatTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return signTypeNode(ts.factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword), symbolName, {
+    return signTypeNode(this.exportBaseTypeDefinition(), symbolName, {
       type: 'float',
       left: this.left && `${this.left[1]}| ${this.left[0].value}`,
       right: this.right && `${this.right[1]}| ${this.right[0].value}`,
     });
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
+    return ts.factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword);
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
   }
 }
 
@@ -199,7 +249,15 @@ export class BooleanTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
     return ts.factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
   }
 }
 
@@ -213,7 +271,15 @@ export class NullTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
     return ts.factory.createLiteralTypeNode(ts.factory.createNull());
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
   }
 }
 
@@ -231,7 +297,15 @@ export class IntegerLiteralTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
     return ts.factory.createLiteralTypeNode(ts.factory.createNumericLiteral(`${this.value.value}`));
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
   }
 }
 
@@ -249,7 +323,15 @@ export class FloatLiteralTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
     return ts.factory.createLiteralTypeNode(ts.factory.createNumericLiteral(`${this.value.value}`));
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
   }
 }
 
@@ -267,7 +349,15 @@ export class BooleanLiteralTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
     return ts.factory.createLiteralTypeNode(this.value.value ? ts.factory.createTrue() : ts.factory.createFalse());
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
   }
 }
 
@@ -285,7 +375,15 @@ export class StringLiteralTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
     return ts.factory.createLiteralTypeNode(ts.factory.createStringLiteral(`${this.value.value}`));
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.exportBaseTypeDefinition();
   }
 }
 
@@ -313,15 +411,27 @@ export class DictionaryTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return this.g(x =>
+      x instanceof TypeLiteralNode ? x.exportTypeDefinition(symbolName) : ts.factory.createTypeReferenceNode(x.name),
+    );
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
+    return this.g(x => (x instanceof TypeLiteralNode ? x.exportBaseTypeDefinition() : getBaseType(x.name)));
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.g(x => (x instanceof TypeLiteralNode ? x.exportJsonTypeDefinition() : getJsonType(x.name)));
+  }
+
+  private g(transformer: (x: TypeLiteralNode | IdentifierNode) => ts.TypeNode) {
     return ts.factory.createTypeLiteralNode(
       this.properties.map(property =>
         ts.factory.createPropertySignature(
           undefined,
           property.identifier.name,
           property.optional ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
-          property.type instanceof TypeLiteralNode
-            ? property.type.exportTypeDefinition(symbolName)
-            : ts.factory.createTypeReferenceNode(property.type.name),
+          transformer(property.type),
         ),
       ),
     );
@@ -352,15 +462,27 @@ export class NamedTupleTypeNode extends TypeLiteralNode {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
+    return this.g(x =>
+      x instanceof TypeLiteralNode ? x.exportTypeDefinition(symbolName) : ts.factory.createTypeReferenceNode(x.name),
+    );
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
+    return this.g(x => (x instanceof TypeLiteralNode ? x.exportBaseTypeDefinition() : getBaseType(x.name)));
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.g(x => (x instanceof TypeLiteralNode ? x.exportJsonTypeDefinition() : getJsonType(x.name)));
+  }
+
+  private g(transformer: (x: TypeLiteralNode | IdentifierNode) => ts.TypeNode) {
     return ts.factory.createTupleTypeNode(
       this.elements.map(element =>
         ts.factory.createNamedTupleMember(
           undefined,
           ts.factory.createIdentifier(element.identifier.name),
           element.optional ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
-          element.type instanceof TypeLiteralNode
-            ? element.type.exportTypeDefinition(symbolName)
-            : ts.factory.createTypeReferenceNode(element.type.name),
+          transformer(element.type),
         ),
       ),
     );
@@ -399,6 +521,18 @@ export class ArrayTypeNode extends TypeLiteralNode {
       max: this.max && this.max.value,
     });
   }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
+    return ts.factory.createArrayTypeNode(
+      this.type instanceof TypeLiteralNode ? this.type.exportBaseTypeDefinition() : getBaseType(this.type.name),
+    );
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return ts.factory.createArrayTypeNode(
+      this.type instanceof TypeLiteralNode ? this.type.exportJsonTypeDefinition() : getJsonType(this.type.name),
+    );
+  }
 }
 
 export class TupleTypeNode extends TypeNodeOfTypes {
@@ -407,13 +541,23 @@ export class TupleTypeNode extends TypeNodeOfTypes {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return ts.factory.createTupleTypeNode(
-      this.types.map(type =>
-        type instanceof TypeLiteralNode
-          ? type.exportTypeDefinition(symbolName)
-          : ts.factory.createTypeReferenceNode(type.name),
-      ),
+    return this.g(type =>
+      type instanceof TypeLiteralNode
+        ? type.exportTypeDefinition(symbolName)
+        : ts.factory.createTypeReferenceNode(type.name),
     );
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
+    return this.g(type => (type instanceof TypeLiteralNode ? type.exportBaseTypeDefinition() : getBaseType(type.name)));
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.g(type => (type instanceof TypeLiteralNode ? type.exportJsonTypeDefinition() : getJsonType(type.name)));
+  }
+
+  private g(transformer: (x: TypeLiteralNode | IdentifierNode) => ts.TypeNode) {
+    return ts.factory.createTupleTypeNode(this.types.map(transformer));
   }
 }
 
@@ -423,13 +567,23 @@ export class IntersectionTypeNode extends TypeNodeOfTypes {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return ts.factory.createIntersectionTypeNode(
-      this.types.map(type =>
-        type instanceof TypeLiteralNode
-          ? type.exportTypeDefinition(symbolName)
-          : ts.factory.createTypeReferenceNode(type.name),
-      ),
+    return this.g(type =>
+      type instanceof TypeLiteralNode
+        ? type.exportTypeDefinition(symbolName)
+        : ts.factory.createTypeReferenceNode(type.name),
     );
+  }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
+    return this.g(type => (type instanceof TypeLiteralNode ? type.exportBaseTypeDefinition() : getBaseType(type.name)));
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.g(type => (type instanceof TypeLiteralNode ? type.exportJsonTypeDefinition() : getJsonType(type.name)));
+  }
+
+  private g(transformer: (x: TypeLiteralNode | IdentifierNode) => ts.TypeNode) {
+    return ts.factory.createIntersectionTypeNode(this.types.map(transformer));
   }
 }
 
@@ -439,12 +593,30 @@ export class UnionTypeNode extends TypeNodeOfTypes {
   }
 
   public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return ts.factory.createUnionTypeNode(
-      this.types.map(type =>
-        type instanceof TypeLiteralNode
-          ? type.exportTypeDefinition(symbolName)
-          : ts.factory.createTypeReferenceNode(type.name),
-      ),
+    return this.g(type =>
+      type instanceof TypeLiteralNode
+        ? type.exportTypeDefinition(symbolName)
+        : ts.factory.createTypeReferenceNode(type.name),
     );
   }
+
+  public exportBaseTypeDefinition(): ts.TypeNode {
+    return this.g(type => (type instanceof TypeLiteralNode ? type.exportBaseTypeDefinition() : getBaseType(type.name)));
+  }
+
+  public exportJsonTypeDefinition(): ts.TypeNode {
+    return this.g(type => (type instanceof TypeLiteralNode ? type.exportJsonTypeDefinition() : getJsonType(type.name)));
+  }
+
+  private g(transformer: (x: TypeLiteralNode | IdentifierNode) => ts.TypeNode) {
+    return ts.factory.createUnionTypeNode(this.types.map(transformer));
+  }
+}
+
+function getBaseType(name: string): ts.TypeNode {
+  return ts.factory.createTypeQueryNode(ts.factory.createQualifiedName(ts.factory.createIdentifier(name), 'BaseType'));
+}
+
+function getJsonType(name: string): ts.TypeNode {
+  return ts.factory.createTypeQueryNode(ts.factory.createQualifiedName(ts.factory.createIdentifier(name), 'JsonType'));
 }
