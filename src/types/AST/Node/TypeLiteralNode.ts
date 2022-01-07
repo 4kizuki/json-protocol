@@ -512,8 +512,8 @@ export class ArrayTypeNode extends TypeNodeWithGenerator {
 }
 
 export class TupleTypeNode extends TypeNodeOfTypes {
-  public constructor({ payload: { types }, location }: ParsedTupleTypeNode) {
-    super(types, location);
+  public constructor({ payload: { elements }, location }: ParsedTupleTypeNode) {
+    super(elements, location);
   }
 
   protected g(transformer: (x: TypeLiteralNode | IdentifierNode) => ts.TypeNode) {

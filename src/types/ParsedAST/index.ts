@@ -112,7 +112,7 @@ export type ParsedNamedTupleTypeNode = ASTNode<
   }
 >;
 
-export type ParsedTupleTypeNode = ASTNode<'tuple_type', { types: ParsedTypeNode[] }>;
+export type ParsedTupleTypeNode = ASTNode<'tuple_type', { elements: ParsedTypeNode[] }>;
 
 export type ParsedArrayTypeNode = ASTNode<
   'array_type',

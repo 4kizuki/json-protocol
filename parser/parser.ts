@@ -462,8 +462,8 @@ function peg$parse(input: string, options?: IParseOptions) {
       location: location()
     }
   };
-  const peg$c113 = "&";
-  const peg$c114 = peg$literalExpectation("&", false);
+  const peg$c113 = "|";
+  const peg$c114 = peg$literalExpectation("|", false);
   const peg$c115 = function(t1: any, tr: any): any {
     return tr.length === 0 ? t1 : {
       type: 'union_type',
@@ -473,8 +473,8 @@ function peg$parse(input: string, options?: IParseOptions) {
       location: location()
     }
   };
-  const peg$c116 = "|";
-  const peg$c117 = peg$literalExpectation("|", false);
+  const peg$c116 = "&";
+  const peg$c117 = peg$literalExpectation("&", false);
   const peg$c118 = function(t1: any, tr: any): any {
    return tr.length === 0 ? t1 : {
      type: 'intersection_type',
@@ -3976,7 +3976,7 @@ function peg$parse(input: string, options?: IParseOptions) {
     let s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11;
 
     s0 = peg$currPos;
-    if (input.charCodeAt(peg$currPos) === 38) {
+    if (input.charCodeAt(peg$currPos) === 124) {
       s1 = peg$c113;
       peg$currPos++;
     } else {
@@ -3997,7 +3997,7 @@ function peg$parse(input: string, options?: IParseOptions) {
             s6 = peg$currPos;
             s7 = peg$parse_();
             if (s7 as any !== peg$FAILED) {
-              if (input.charCodeAt(peg$currPos) === 38) {
+              if (input.charCodeAt(peg$currPos) === 124) {
                 s8 = peg$c113;
                 peg$currPos++;
               } else {
@@ -4038,7 +4038,7 @@ function peg$parse(input: string, options?: IParseOptions) {
               s6 = peg$currPos;
               s7 = peg$parse_();
               if (s7 as any !== peg$FAILED) {
-                if (input.charCodeAt(peg$currPos) === 38) {
+                if (input.charCodeAt(peg$currPos) === 124) {
                   s8 = peg$c113;
                   peg$currPos++;
                 } else {
@@ -4110,7 +4110,7 @@ function peg$parse(input: string, options?: IParseOptions) {
     let s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11;
 
     s0 = peg$currPos;
-    if (input.charCodeAt(peg$currPos) === 124) {
+    if (input.charCodeAt(peg$currPos) === 38) {
       s1 = peg$c116;
       peg$currPos++;
     } else {
@@ -4131,7 +4131,7 @@ function peg$parse(input: string, options?: IParseOptions) {
             s6 = peg$currPos;
             s7 = peg$parse_();
             if (s7 as any !== peg$FAILED) {
-              if (input.charCodeAt(peg$currPos) === 124) {
+              if (input.charCodeAt(peg$currPos) === 38) {
                 s8 = peg$c116;
                 peg$currPos++;
               } else {
@@ -4172,7 +4172,7 @@ function peg$parse(input: string, options?: IParseOptions) {
               s6 = peg$currPos;
               s7 = peg$parse_();
               if (s7 as any !== peg$FAILED) {
-                if (input.charCodeAt(peg$currPos) === 124) {
+                if (input.charCodeAt(peg$currPos) === 38) {
                   s8 = peg$c116;
                   peg$currPos++;
                 } else {

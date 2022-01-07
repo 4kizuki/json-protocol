@@ -272,7 +272,7 @@ tuple_type = "[" _ t1:type _ tr:( "," _ type _ )* "]"
 
 primitive_type = string_type / date_string_type / integer_type / float_type / boolean_type / null_type / literal_type / dictionary_type / named_tuple_type / tuple_type / enclosed_type / identifier
 
-union_type = "&"? _ t1:primitive_type _ tr:(_ "&" _ primitive_type _)*
+union_type = "|"? _ t1:primitive_type _ tr:(_ "|" _ primitive_type _)*
 {
   return tr.length === 0 ? t1 : {
     type: 'union_type',
@@ -283,7 +283,7 @@ union_type = "&"? _ t1:primitive_type _ tr:(_ "&" _ primitive_type _)*
   }
 } / primitive_type
 
-intersection_type = "|"? _ t1:union_type _ tr:(_ "|" _ union_type _)*
+intersection_type = "&"? _ t1:union_type _ tr:(_ "&" _ union_type _)*
 {
  return tr.length === 0 ? t1 : {
    type: 'intersection_type',
