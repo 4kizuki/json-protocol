@@ -1,5 +1,4 @@
 import {
-  Location,
   ParsedArrayTypeNode,
   ParsedBooleanLiteralTypeNode,
   ParsedBooleanTypeNode,
@@ -15,7 +14,6 @@ import {
   ParsedStringLiteralTypeNode,
   ParsedStringTypeNode,
   ParsedTupleTypeNode,
-  ParsedTypeNode,
   ParsedUnionTypeNode,
 } from '../../../ParsedAST';
 import {
@@ -30,50 +28,9 @@ import * as ts from 'typescript';
 import { signTypeNode } from '../../../../util/signTypeNode';
 import { TypeLiteralNode } from './index';
 import { typeNodeFactory } from './factory';
-
-// helper function
-function getDependentIdentifiersFromUnion(type: TypeLiteralNode | IdentifierNode): Set<IdentifierString> {
-  const ret = new Set<IdentifierString>();
-  if (type instanceof IdentifierNode) {
-    ret.add(type.name);
-  } else {
-    type.getDependingTypes().forEach(n => ret.add(n));
-  }
-  return ret;
-}
-
-// helper class
-abstract class TypeNodeWithGenerator extends TypeLiteralNode {
-  public exportTypeDefinition(symbolName: string): ts.TypeNode {
-    return this.g(type => toTsTypeNode.signed(symbolName, type));
-  }
-
-  public exportBaseTypeDefinition(): ts.TypeNode {
-    return this.g(toTsTypeNode.base);
-  }
-
-  public exportJsonTypeDefinition(): ts.TypeNode {
-    return this.g(toTsTypeNode.json);
-  }
-
-  protected abstract g(transformer: (x: TypeLiteralNode | IdentifierNode) => ts.TypeNode): ts.TypeNode;
-}
-
-abstract class TypeNodeOfTypes extends TypeNodeWithGenerator {
-  public readonly types: (TypeLiteralNode | IdentifierNode)[];
-
-  protected constructor(types: ParsedTypeNode[], location: Location) {
-    super(location);
-
-    this.types = types.map(t => typeNodeFactory(t));
-  }
-
-  public getDependingTypes(): Set<IdentifierString> {
-    const ret = new Set<IdentifierString>();
-    this.types.forEach(type => getDependentIdentifiersFromUnion(type).forEach(n => ret.add(n)));
-    return ret;
-  }
-}
+import { TypeNodeWithGenerator } from './helper/TypeNodeWithGenerator';
+import { getDependentIdentifiersFromUnion } from './helper/getDependentIdentifiersFromUnion';
+import { TypeNodeOfTypes } from './helper/TypeNodeOfTypes';
 
 export class StringTypeNode extends TypeLiteralNode {
   public readonly min: UnsignedIntegerLiteral | null;
@@ -488,34 +445,5 @@ export class UnionTypeNode extends TypeNodeOfTypes {
 
   protected g(transformer: (x: TypeLiteralNode | IdentifierNode) => ts.TypeNode) {
     return ts.factory.createUnionTypeNode(this.types.map(transformer));
-  }
-}
-
-namespace toTsTypeNode {
-  function getBaseType(name: string): ts.TypeNode {
-    return ts.factory.createTypeReferenceNode(
-      ts.factory.createQualifiedName(ts.factory.createIdentifier(name), 'BaseType'),
-    );
-  }
-
-  function getJsonType(name: string): ts.TypeNode {
-    return ts.factory.createTypeReferenceNode(
-      ts.factory.createQualifiedName(ts.factory.createIdentifier(name), 'JsonType'),
-    );
-  }
-
-  export function signed(symbolName: string, type: TypeLiteralNode | IdentifierNode): ts.TypeNode {
-    if (type instanceof TypeLiteralNode) return type.exportTypeDefinition(symbolName);
-    return ts.factory.createTypeReferenceNode(type.name);
-  }
-
-  export function base(type: TypeLiteralNode | IdentifierNode): ts.TypeNode {
-    if (type instanceof TypeLiteralNode) return type.exportBaseTypeDefinition();
-    return getBaseType(type.name);
-  }
-
-  export function json(type: TypeLiteralNode | IdentifierNode): ts.TypeNode {
-    if (type instanceof TypeLiteralNode) return type.exportJsonTypeDefinition();
-    return getJsonType(type.name);
   }
 }
