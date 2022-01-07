@@ -543,13 +543,13 @@ export class UnionTypeNode extends TypeNodeOfTypes {
 
 namespace toTsTypeNode {
   function getBaseType(name: string): ts.TypeNode {
-    return ts.factory.createTypeQueryNode(
+    return ts.factory.createTypeReferenceNode(
       ts.factory.createQualifiedName(ts.factory.createIdentifier(name), 'BaseType'),
     );
   }
 
   function getJsonType(name: string): ts.TypeNode {
-    return ts.factory.createTypeQueryNode(
+    return ts.factory.createTypeReferenceNode(
       ts.factory.createQualifiedName(ts.factory.createIdentifier(name), 'JsonType'),
     );
   }
