@@ -1,6 +1,7 @@
-import { TypeLiteralNode, typeNodeFactory } from './TypeLiteralNode';
+import { TypeLiteralNode } from './TypeLiteralNode';
 import { ParsedTypedefNode } from '../../ParsedAST';
 import { IdentifierNode, IdentifierString, RootNode } from './index';
+import { typeNodeFactory } from './TypeLiteralNode/factory';
 
 export class TypedefNode extends RootNode {
   public readonly modifiers: Set<'export'>;

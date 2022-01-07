@@ -17,69 +17,19 @@ import {
   ParsedTupleTypeNode,
   ParsedTypeNode,
   ParsedUnionTypeNode,
-} from '../../ParsedAST';
-import { BooleanLiteral, FloatLiteral, SignedIntegerLiteral, StringLiteral, UnsignedIntegerLiteral } from '../Literal';
-import { IdentifierNode, IdentifierString, Node, PropertyNameNode } from './index';
+} from '../../../ParsedAST';
+import {
+  BooleanLiteral,
+  FloatLiteral,
+  SignedIntegerLiteral,
+  StringLiteral,
+  UnsignedIntegerLiteral,
+} from '../../Literal';
+import { IdentifierNode, IdentifierString, PropertyNameNode } from '../index';
 import * as ts from 'typescript';
-import { signTypeNode } from '../../../util/signTypeNode';
-
-export function typeNodeFactory(parsed: ParsedTypeNode): TypeLiteralNode | IdentifierNode {
-  switch (parsed.type) {
-    case 'intersection_type':
-      return new IntersectionTypeNode(parsed);
-    case 'union_type':
-      return new UnionTypeNode(parsed);
-    case 'array_type':
-      return new ArrayTypeNode(parsed);
-    case 'string_type':
-      return new StringTypeNode(parsed);
-    case 'date_string_type':
-      return new DateStringTypeNode(parsed);
-    case 'integer_type':
-      return new IntegerTypeNode(parsed);
-    case 'float_type':
-      return new FloatTypeNode(parsed);
-    case 'boolean_type':
-      return new BooleanTypeNode(parsed);
-    case 'null_type':
-      return new NullTypeNode(parsed);
-    case 'integer_literal_type':
-      return new IntegerLiteralTypeNode(parsed);
-    case 'float_literal_type':
-      return new FloatLiteralTypeNode(parsed);
-    case 'boolean_literal_type':
-      return new BooleanLiteralTypeNode(parsed);
-    case 'string_literal_type':
-      return new StringLiteralTypeNode(parsed);
-    case 'dictionary_type':
-      return new DictionaryTypeNode(parsed);
-    case 'named_tuple_type':
-      return new NamedTupleTypeNode(parsed);
-    case 'tuple_type':
-      return new TupleTypeNode(parsed);
-    case 'identifier':
-      return new IdentifierNode(parsed);
-  }
-}
-
-// opaque typedef
-const typeLiteralSign: unique symbol = Symbol();
-
-export abstract class TypeLiteralNode extends Node {
-  private readonly [typeLiteralSign] = typeLiteralSign;
-
-  public abstract getDependingTypes(): Set<IdentifierString>;
-
-  public abstract exportTypeDefinition(symbolName: string): ts.TypeNode;
-
-  public abstract exportBaseTypeDefinition(): ts.TypeNode;
-
-  public abstract exportJsonTypeDefinition(): ts.TypeNode;
-
-  // public abstract exportValidationLambda(symbolName: string): string;
-  // public abstract exportToJSONLambda(): string;
-  // public abstract exportFromJSONLambda(): string;
-}
+import { signTypeNode } from '../../../../util/signTypeNode';
+import { TypeLiteralNode } from './index';
+import { typeNodeFactory } from './factory';
 
 // helper function
 function getDependentIdentifiersFromUnion(type: TypeLiteralNode | IdentifierNode): Set<IdentifierString> {
