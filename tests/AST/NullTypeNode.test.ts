@@ -1,20 +1,9 @@
-import { assertType } from '../util/assertType';
-import { BooleanTypeNode, NullTypeNode } from '../../src/types/AST/Node/TypeLiteralNode';
-import { createDummyLocation } from '../util/createDummyLocation';
+import { assertExports } from '../util/assertExports';
 
-const location = createDummyLocation();
-
-describe('NullTypeNode :: ExportTypeDefinition', (): void => {
-  test('Default', (): void => {
-    const symName = 'sym';
-
-    assertType(
-      new NullTypeNode({
-        type: 'null_type',
-        payload: null,
-        location,
-      }).exportTypeDefinition(symName),
-      `null`,
-    );
+describe('NullTypeNode :: ExportTypeDefinition', () => {
+  test('Default', () => {
+    assertExports(`export type T = null;`, {
+      base: 'null',
+    });
   });
 });

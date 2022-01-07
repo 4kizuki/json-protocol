@@ -1,71 +1,31 @@
-import { assertType } from '../util/assertType';
-import { IntegerTypeNode } from '../../src/types/AST/Node/TypeLiteralNode';
-import { createDummyLocation } from '../util/createDummyLocation';
+import { assertExports } from '../util/assertExports';
 
-const location = createDummyLocation();
-
-describe('IntegerTypeNode :: ExportTypeDefinition', (): void => {
-  test('None', (): void => {
-    const symName = 'sym';
-
-    assertType(
-      new IntegerTypeNode({
-        type: 'integer_type',
-        payload: {
-          min: null,
-          max: null,
-        },
-        location,
-      }).exportTypeDefinition(symName),
-      `number & {[${symName}]: { type: "integer" }`,
-    );
+describe('IntegerTypeNode :: ExportTypeDefinition', () => {
+  test('None', () => {
+    assertExports(`export type T = integer;`, {
+      signed: symName => `number & {[${symName}]: { type: "integer" }`,
+      base: 'number',
+    });
   });
 
-  test('Min', (): void => {
-    const symName = 'sym';
-
-    assertType(
-      new IntegerTypeNode({
-        type: 'integer_type',
-        payload: {
-          min: { type: 'signed_integer', value: '-3', location },
-          max: null,
-        },
-        location,
-      }).exportTypeDefinition(symName),
-      `number & {[${symName}]: { type: "integer", min: -3 }`,
-    );
+  test('Min', () => {
+    assertExports(`export type T = integer([-3,]);`, {
+      signed: symName => `number & {[${symName}]: { type: "integer", min: -3 }`,
+      base: 'number',
+    });
   });
 
-  test('Max', (): void => {
-    const symName = 'sym';
-
-    assertType(
-      new IntegerTypeNode({
-        type: 'integer_type',
-        payload: {
-          min: null,
-          max: { type: 'signed_integer', value: '3245', location },
-        },
-        location,
-      }).exportTypeDefinition(symName),
-      `number & {[${symName}]: { type: "integer", max: 3245 }`,
-    );
+  test('Max', () => {
+    assertExports(`export type T = integer([, 3245]);`, {
+      signed: symName => `number & {[${symName}]: { type: "integer", max: 3245 }`,
+      base: 'number',
+    });
   });
 
-  test('Min, Max', (): void => {
-    const symName = 'sym';
-
-    assertType(
-      new IntegerTypeNode({
-        type: 'integer_type',
-        payload: {
-          min: { type: 'signed_integer', value: '-3', location },
-          max: { type: 'signed_integer', value: '3245', location },
-        },
-        location,
-      }).exportTypeDefinition(symName),
-      `number & {[${symName}]: { type: "integer", min: -3, max: 3245 }`,
-    );
+  test('Min, Max', () => {
+    assertExports(`export type T = integer([-3, 3245]);`, {
+      signed: symName => `number & {[${symName}]: { type: "integer", min: -3, max: 3245 }`,
+      base: 'number',
+    });
   });
 });

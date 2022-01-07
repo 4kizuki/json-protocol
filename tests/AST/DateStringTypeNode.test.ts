@@ -1,20 +1,10 @@
-import { assertType } from '../util/assertType';
-import { DateStringTypeNode } from '../../src/types/AST/Node/TypeLiteralNode';
-import { createDummyLocation } from '../util/createDummyLocation';
+import { assertExports } from '../util/assertExports';
 
-const location = createDummyLocation();
-
-describe('DateStringTypeNode :: ExportTypeDefinition', (): void => {
-  test('Default', (): void => {
-    const symName = 'sym';
-
-    assertType(
-      new DateStringTypeNode({
-        type: 'date_string_type',
-        payload: null,
-        location,
-      }).exportTypeDefinition(symName),
-      `Date`,
-    );
+describe('DateStringTypeNode :: ExportTypeDefinition', () => {
+  test('Default', () => {
+    assertExports('export type T = DateString;', {
+      base: 'Date',
+      json: 'string',
+    });
   });
 });
