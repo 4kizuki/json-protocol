@@ -65,14 +65,64 @@ export class StringTypeNode extends TypeLiteralNode {
     return this.exportBaseTypeDefinition();
   }
 
-  public exportValidationLambda(symbolName: string): string {
-    // language=typescript
-    return `(base: ${this.exportBaseTypeDefinition()}): Result<${this.exportTypeDefinition(
-      symbolName,
-    )}, ParseError> => {
-      ${this.min !== null ? `if (base.length < ${this.min.value}) throw new ParseError('');` : ''}
-      ${this.max !== null ? `if (base.length > ${this.max.value}) throw new ParseError('');` : ''}
-    `;
+  public exportValidator(symbolName: string, variableName: string): ts.ArrowFunction {
+    const f = ts.factory;
+    const baseArg = f.createIdentifier('base');
+    const validationError = (msg: string): ts.Statement =>
+      f.createThrowStatement(
+        f.createNewExpression(f.createIdentifier('ValidationError'), undefined, [f.createStringLiteral(msg)]),
+      );
+
+    const statements: ts.Statement[] = [];
+
+    // if (base.length < min) throw new ValidationError('...');
+    if (this.min)
+      statements.push(
+        f.createIfStatement(
+          f.createBinaryExpression(
+            f.createPropertyAccessExpression(baseArg, 'length'),
+            ts.SyntaxKind.LessThanToken,
+            f.createNumericLiteral(this.min.value),
+          ),
+          validationError(`The length of ${variableName} must not be less than ${this.min.value}`),
+        ),
+      );
+
+    // if (base.length > max) throw new ValidationError('...');
+    if (this.max)
+      statements.push(
+        f.createIfStatement(
+          f.createBinaryExpression(
+            f.createPropertyAccessExpression(baseArg, 'length'),
+            ts.SyntaxKind.GreaterThanToken,
+            f.createNumericLiteral(this.max.value),
+          ),
+          validationError(`The length of ${variableName} must not be greater than ${this.max.value}`),
+        ),
+      );
+
+    // return base as any
+    statements.push(
+      f.createReturnStatement(f.createAsExpression(baseArg, f.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword))),
+    );
+
+    return f.createArrowFunction(
+      undefined,
+      undefined,
+      [
+        f.createParameterDeclaration(
+          undefined,
+          undefined,
+          undefined,
+          baseArg,
+          undefined,
+          this.exportBaseTypeDefinition(),
+        ),
+      ],
+      f.createTypeReferenceNode('Result', [this.exportTypeDefinition(symbolName)]),
+      undefined,
+      f.createBlock(statements, true),
+    );
   }
 }
 

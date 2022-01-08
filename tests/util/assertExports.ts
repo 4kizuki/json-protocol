@@ -10,7 +10,7 @@ export function assertExports(
     base: string;
     json?: string;
   },
-) {
+): TypeLiteralNode {
   const instance = typeof schemaOrTypeLiteral === 'string' ? getNthType(schemaOrTypeLiteral) : schemaOrTypeLiteral;
   const { base } = expectations;
   const { signed = base, json = base } = expectations;
@@ -19,4 +19,5 @@ export function assertExports(
   assertType(instance.exportTypeDefinition(symName), typeof signed === 'string' ? signed : signed(symName));
   assertType(instance.exportBaseTypeDefinition(), base);
   assertType(instance.exportJsonTypeDefinition(), json);
+  return instance;
 }
