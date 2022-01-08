@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import { TypedefNode } from './types/AST/Node/TypedefNode';
-import { TypeLiteralNode } from './types/AST/Node/TypeLiteralNode/TypeLiteralNode';
+import { TypeLiteralNode } from './types/AST/Node/TypeLiteralNode';
 import { printFormattedScript } from './util/printScript';
 import { wrapTypeNodeWithTypeAliasStatement } from './util/wrapTypeNodeWithTypeAliasStatement';
 import { parseSchema } from './parser';
